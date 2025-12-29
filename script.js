@@ -4,18 +4,22 @@ window.onload = () => {
 
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
 
+
     auth.onAuthStateChanged(user => {
         if (user) {
             document.getElementById("authSection").style.display = "none";
             document.getElementById("mainContent").style.display = "block";
             document.getElementById("userAvatar").src = user.photoURL;
-            document.getElementById("userNameDisplay").innerText = user.displayName;
+            
+            const savedName = localStorage.getItem(`customName_${user.uid}`);
+            document.getElementById("userNameDisplay").innerText = savedName || user.displayName;
             loadGoals(); 
         } else {
             document.getElementById("authSection").style.display = "block";
             document.getElementById("mainContent").style.display = "none";
         }
     });
+
 
     document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
     document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
@@ -24,8 +28,10 @@ window.onload = () => {
         const newName = document.getElementById("customNameInput").value.trim();
         if (!newName) return alert("Write a name!");
         localStorage.setItem(`customName_${auth.currentUser.uid}`, newName);
+        document.getElementById("userNameDisplay").innerText = newName;
         alert("asm chbab bsa7 ta3i khir hehehee! ✅");
     };
+
 
     document.getElementById("submitGoalBtn").onclick = async () => {
         const input = document.getElementById("goalInput");
@@ -46,8 +52,9 @@ window.onload = () => {
                 createdAt: methods.serverTimestamp()
             });
             input.value = "";
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error adding goal:", e); }
     };
+
 
     function loadGoals() {
         const now = new Date();
@@ -67,11 +74,10 @@ window.onload = () => {
             const user = auth.currentUser;
             const isAdmin = user?.uid === ADMIN_UID;
             
-            const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const doneTime = 22 * 60 + 20;   
             const voteStart = 22 * 60 + 30;  
-            const voteEnd = 23 * 60;     
+            const voteEnd = 23 * 60;         
 
             let allGoals = [];
 
@@ -79,38 +85,38 @@ window.onload = () => {
                 const g = doc.data();
                 const goalId = doc.id;
                 allGoals.push({ id: goalId, ...g });
+                
                 const isOwner = user?.uid === g.userId;
                 const hasVoted = g.voters?.includes(user?.uid);
-                
                 const comments = g.comments || [];
                 const hasCommented = comments.some(c => c.userId === user?.uid);
 
                 const div = document.createElement("div");
                 div.className = "goal-card";
                 let borderCol = g.status === "completed" ? "#10b981" : (g.status === "failed" ? "#ef4444" : "#f59e0b");
-                div.style = `border-left: 8px solid ${borderCol}; position: relative; padding: 0; overflow: hidden;`;
+                div.style = `border-left: 8px solid ${borderCol}; position: relative; padding: 0; overflow: hidden; margin-bottom:15px; background:white; border-radius:12px;`;
             
                 div.innerHTML = `
                     <div style="padding: 15px;">
-                        ${isAdmin ? `<button onclick="deleteGoal('${goalId}')" style="position:absolute; left:10px; top:10px; width:auto; background:none; color:red; font-size:1.2rem; margin:0; border:none; cursor:pointer;">🗑️</button>` : ''}
+                        ${isAdmin ? `<button onclick="deleteGoal('${goalId}')" style="position:absolute; left:10px; top:10px; background:none; color:red; border:none; cursor:pointer; font-size:1.2rem;">🗑️</button>` : ''}
                         <div style="display: flex; align-items: center; margin-bottom: 10px;">
                             <img src="${g.userPhoto}" style="width: 30px; height: 30px; border-radius: 50%; margin-left: 10px;">
-                            <b>${g.userName}</b>
+                            <b style="color:#333;">${g.userName}</b>
                         </div>
-                        <p style="font-size: 1.1rem; margin: 10px 0; ${g.status === 'failed' ? 'text-decoration: line-through; color: gray;' : ''}">${g.text}</p>
+                        <p style="font-size: 1.1rem; margin: 10px 0; color:#444; ${g.status === 'failed' ? 'text-decoration: line-through; color: gray;' : ''}">${g.text}</p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eff3f4; padding-top: 10px;">
-                            <div style="display: flex; gap: 10px;">
-                                <span style="font-weight: bold; color: #536471; display:flex; align-items:center;">${g.votes || 0} 🔥</span>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span style="font-weight: bold; color: #536471;">${g.votes || 0} 🔥</span>
                                 <button class="toggle-comments-btn" onclick="toggleComments('${goalId}')">💬 ${comments.length}</button>
                             </div>
                             <div>
-                                ${isOwner && g.status === 'pending' && currentTime >= doneTime ? `
-                                    <button onclick="updateStatus('${goalId}', 'completed')" style="background:#10b981; color:white; width:auto; padding:5px 12px; border-radius: 20px;">✅ done</button>
-                                    <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; width:auto; padding:5px 12px; border-radius: 20px;">❌ failed</button>
+                                ${isOwner && g.status === 'pending' ? `
+                                    <button onclick="updateStatus('${goalId}', 'completed')" style="background:#10b981; color:white; border:none; padding:5px 12px; border-radius: 20px; cursor:pointer;">✅ done</button>
+                                    <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; border:none; padding:5px 12px; border-radius: 20px; cursor:pointer; margin-right:5px;">❌ failed</button>
                                 ` : ''}
                                 ${!isOwner && g.status === 'completed' && currentTime >= voteStart && currentTime < voteEnd ? `
-                                    <button onclick="voteGoal('${goalId}')" style="background:${hasVoted ? '#ef4444' : '#1d9bf0'}; color:white; width:auto; padding:5px 12px; border-radius: 20px;">
+                                    <button onclick="voteGoal('${goalId}')" style="background:${hasVoted ? '#ef4444' : '#1d9bf0'}; color:white; border:none; padding:5px 12px; border-radius: 20px; cursor:pointer;">
                                         ${hasVoted ? '👎 nuh' : '👍 Vote'}
                                     </button>
                                 ` : ''}
@@ -118,35 +124,37 @@ window.onload = () => {
                         </div>
                     </div>
 
-                    <div id="commentsSection-${goalId}" class="comments-container" style="display:none;">
-                        <div class="comments-list">
+                    <div id="commentsSection-${goalId}" class="comments-container" style="display:none; border-top:1px solid #eee; background:#f9f9f9;">
+                        <div class="comments-list" style="max-height:200px; overflow-y:auto;">
                             ${comments.map(c => `
-                                <div class="comment-item">
-                                    <img src="${c.userPhoto || 'https://via.placeholder.com/35'}" class="comment-avatar">
-                                    <div class="comment-content">
-                                        <span class="comment-author">${c.userName}</span>
-                                        <div class="comment-text">${c.text}</div>
+                                <div class="comment-item" style="display:flex; gap:10px; padding:10px; border-bottom:1px solid #eee;">
+                                    <img src="${c.userPhoto}" style="width:25px; height:25px; border-radius:50%;">
+                                    <div>
+                                        <div style="font-weight:bold; font-size:0.8rem; color:#0f1419;">${c.userName}</div>
+                                        <div style="font-size:0.85rem; color:#333;">${c.text}</div>
                                     </div>
                                 </div>
                             `).join('')}
-                            ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">No motivation yet.. be the first! 🚀</p>' : ''}
+                            ${comments.length === 0 ? '<p style="text-align:center; color:gray; font-size:0.8rem; padding:10px;">Be the first to motivate! 🚀</p>' : ''}
                         </div>
                         ${!hasCommented ? `
-                            <div class="comment-input-area">
-                                <input type="text" id="commInput-${goalId}" placeholder="Write motivation..">
-                                <button class="send-comment-btn" onclick="addComment('${goalId}')">Reply</button>
+                            <div class="comment-input-area" style="display:flex; padding:10px; gap:5px;">
+                                <input type="text" id="commInput-${goalId}" placeholder="Motivation.." maxlength="100" style="flex:1; border:1px solid #ddd; border-radius:15px; padding:5px 12px; outline:none;">
+                                <button onclick="addComment('${goalId}')" style="background:#1d9bf0; color:white; border:none; border-radius:15px; padding:5px 15px; cursor:pointer; font-size:0.8rem;">Reply</button>
                             </div>
-                        ` : '<p class="comment-limit-msg">You shared your motivation sahit!</p>'}
+                        ` : '<p style="font-size:0.75rem; color:gray; text-align:center; padding:8px;">You shared your motivation! 🎯</p>'}
                     </div>`;
                 
                 list.appendChild(div);
             });
+
 
             if (currentTime >= voteEnd) {
                 handleWinnerLogic(allGoals, isAdmin);
             }
         });
     }
+
 
     window.toggleComments = (goalId) => {
         const el = document.getElementById(`commentsSection-${goalId}`);
@@ -155,11 +163,9 @@ window.onload = () => {
 
     window.addComment = async (goalId) => {
         const user = auth.currentUser;
-        if (!user) return alert("Login first!");
         const input = document.getElementById(`commInput-${goalId}`);
         const text = input.value.trim();
-        if (!text) return;
-        if (text.length > 150) return alert("Too long! Keep it short ");
+        if (!text || !user) return;
 
         const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
         try {
@@ -172,13 +178,46 @@ window.onload = () => {
                     at: new Date().toISOString()
                 })
             });
-        } catch (e) { console.error("Comment error:", e); }
+            input.value = "";
+        } catch (e) { console.error("Comment failed:", e); }
     };
+
+    window.updateStatus = async (id, status) => { 
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        const doneStart = 22 * 60 + 20; // 22:20
+
+        if (currentTime < doneStart) {
+            return alert("⏰ Sabar! You can update status only after 22:20");
+        }
+        await methods.updateDoc(methods.doc(db, "goals", id), { status }); 
+    };
+
+    window.voteGoal = async (id) => {
+        const user = auth.currentUser;
+        if (!user) return alert("Login first!");
+        const goalRef = methods.doc(db, "goals", id);
+        const g = (await methods.getDoc(goalRef)).data();
+        
+        if (g.userId === user.uid) return alert("Vote for others! 😗");
+
+        if (g.voters?.includes(user.uid)) {
+            await methods.updateDoc(goalRef, { voters: methods.arrayRemove(user.uid), votes: methods.increment(-1) });
+        } else {
+            await methods.updateDoc(goalRef, { voters: methods.arrayUnion(user.uid), votes: methods.increment(1) });
+        }
+    };
+
+    window.deleteGoal = async (id) => { 
+        if (confirm("raki sure ya zala?")) await methods.deleteDoc(methods.doc(db, "goals", id)); 
+    };
+
 
     function handleWinnerLogic(goals, isAdmin) {
         const winnerSection = document.getElementById("winnerSection");
         const completedGoals = goals.filter(g => g.status === "completed");
         if (completedGoals.length === 0) return;
+
 
         const manualWinner = completedGoals.find(g => g.isWinner === true);
         if (manualWinner) return displayWinner(manualWinner);
@@ -190,12 +229,18 @@ window.onload = () => {
             displayWinner(topGoals[0]);
         } else if (topGoals.length > 1 && isAdmin) {
             winnerSection.innerHTML = `
-                <div class="card" style="background: white; color: black; border: 2px dashed gold; text-align:center; padding: 20px; border-radius:15px; margin-bottom:20px;">
-                    <h3>⚠️ khyri al winner ya zala:</h3>
-                    ${topGoals.map(g => `<button onclick="setManualWinner('${g.id}')" style="margin:5px; width:auto; padding: 10px; background: gold; border:none; border-radius:8px; cursor:pointer;">🏆 ${g.userName} (${g.votes})</button>`).join('')}
+                <div style="background:white; padding:15px; border-radius:15px; text-align:center; color:black; border:2px dashed gold;">
+                    <h3>⚠️ Tie detected! Choose the winner:</h3>
+                    ${topGoals.map(g => `
+                        <button onclick="setManualWinner('${g.id}')" style="margin:5px; padding:8px 15px; background:gold; border:none; border-radius:10px; cursor:pointer;">🏆 ${g.userName}</button>
+                    `).join('')}
                 </div>`;
         }
     }
+
+    window.setManualWinner = async (id) => {
+        await methods.updateDoc(methods.doc(db, "goals", id), { isWinner: true });
+    };
 
     function displayWinner(winner) {
         const winnerSection = document.getElementById("winnerSection");
@@ -206,43 +251,8 @@ window.onload = () => {
                     <div class="crown">👑</div>
                     <img src="${winner.userPhoto}" class="winner-avatar">
                     <h2>${winner.userName}</h2>
-                    <p>${winner.votes} 🔥 TODAY'S WINNER! </p>
+                    <p>${winner.votes} 🔥 Today's Top Achiever!</p>
                 </div>
             </div>`;
     }
-
-    window.updateStatus = async (id, status) => { 
-        const now = new Date();
-        const currentTime = now.getHours() * 60 + now.getMinutes();
-        const doneTime = 22 * 60 + 20;
-        const voteStart = 22 * 60 + 30;
-
-        if (currentTime < doneTime || currentTime >= voteStart) {
-        alert("⏰ You can only update status between 22:20 and 22:30");
-        return;
-        }
-        await methods.updateDoc(methods.doc(db, "goals", id), { status }); };
-    
-    window.deleteGoal = async (id) => { 
-        if (confirm("raki sure ya zala?")) await methods.deleteDoc(methods.doc(db, "goals", id)); 
-    };
-
-    window.setManualWinner = async (id) => {
-        await methods.updateDoc(methods.doc(db, "goals", id), { isWinner: true });
-    };
-
-    window.voteGoal = async (id) => {
-        const user = auth.currentUser;
-        if (!user) return alert("Login first!");
-        const goalRef = methods.doc(db, "goals", id);
-        const g = (await methods.getDoc(goalRef)).data();
-        
-        if (g.userId === user.uid) return alert("You can't vote for yourself! 😗");
-
-        if (g.voters?.includes(user.uid)) {
-            await methods.updateDoc(goalRef, { voters: methods.arrayRemove(user.uid), votes: methods.increment(-1) });
-        } else {
-            await methods.updateDoc(goalRef, { voters: methods.arrayUnion(user.uid), votes: methods.increment(1) });
-        }
-    };
 };
