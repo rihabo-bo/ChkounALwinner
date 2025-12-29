@@ -2,32 +2,49 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Daily Goals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Goal Arena</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <div id="authSection" style="text-align: center; margin-top: 50px;">
-    <h1>🏆 Daily Goals Competition</h1>
+    <h1>🏆 Daily Goal Competition</h1>
     <button id="loginBtn" style="padding: 15px 30px; font-size: 18px; cursor: pointer;">Login with Google</button>
   </div>
 
   <div id="mainContent" style="display:none;">
-    <header id="userInfoHeader" style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #eee;">
-      <div style="display: flex; align-items: center;">
-        <img id="userAvatar" src="" style="width: 40px; border-radius: 50%; margin-left: 10px;">
-        <span id="userNameDisplay"></span>
+    <div id="winnerSection"></div>
+
+    <header id="userInfoHeader" class="profile-card">
+      <div class="profile-main">
+        <div class="avatar-container">
+          <img id="userAvatar" src="" alt="avatar">
+          <div class="online-indicator"></div>
+        </div>
+        <div class="user-details">
+          <input type="text" id="customNameInput" placeholder="..BDAL ASMEK" class="name-input">
+          <p id="userNameDisplay" style="font-size: 0.8rem; opacity: 0.7; margin: 0; color: white;"></p>
+        </div>
       </div>
-      <button id="logoutBtn">sortie</button>
+      <div class="profile-actions">
+        <button id="updateNameBtn" class="save-btn">Sauvegarder</button>
+        <button id="logoutBtn" class="exit-btn">sortie</button>
+      </div>
     </header>
 
     <h1>🎯 today's goal 🎯</h1>
-    <div class="card">
-      <textarea id="goalInput" placeholder="Aktab your goal hna l3ziz"></textarea>
-      <button id="submitGoalBtn">publier l'objectif</button>
+    
+    <div class="card goal-input-card">
+      <div class="card-header">
+        <span class="icon">📝</span>
+        <span class="label">NOUVEL OBJECTIF</span>
+      </div>
+      <textarea id="goalInput" placeholder="Aktab your goal hna l3ziz..."></textarea>
+      <button id="submitGoalBtn">🚀 publier l'objectif</button>
     </div>
 
-    <h2>🌍 Goals list </h2>
+    <h2>🌍 Goals list</h2>
     <div id="goalsList"></div>
   </div>
 
@@ -36,10 +53,9 @@
   import { 
     getFirestore, collection, addDoc, query, where, onSnapshot, 
     serverTimestamp, Timestamp, doc, updateDoc, increment, 
-    getDoc, arrayUnion, arrayRemove, orderBy 
+    getDoc, arrayUnion, arrayRemove, orderBy, deleteDoc 
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDoCYX3bfYSS5AOHNDn0NMfyA5UPZVrfIA",
@@ -53,20 +69,18 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  const storage = getStorage(app);
   const provider = new GoogleAuthProvider();
 
+
   window.fb = {
-    db, auth, storage, provider,
+    db, auth, provider,
     methods: { 
       addDoc, collection, query, where, onSnapshot, serverTimestamp, 
       Timestamp, doc, updateDoc, increment, signInWithPopup, signOut, 
-      ref, uploadBytes, getDownloadURL, arrayRemove, getDoc, arrayUnion,
-      orderBy
+      arrayRemove, getDoc, arrayUnion, orderBy, deleteDoc
     }
   };
 </script>
-
   <script src="script.js"></script>
 </body>
 </html>
