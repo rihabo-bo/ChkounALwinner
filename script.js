@@ -2,33 +2,25 @@ window.onload = () => {
     if (!window.fb) return console.error("Firebase is not loaded!");
     const { methods, db, auth, provider } = window.fb;
 
-
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
-
 
     auth.onAuthStateChanged(user => {
         if (user) {
             document.getElementById("authSection").style.display = "none";
             document.getElementById("mainContent").style.display = "block";
-            
-
             document.getElementById("userAvatar").src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-            
-
             const savedName = localStorage.getItem(`customName_${user.uid}`);
             document.getElementById("userNameDisplay").innerText = savedName || user.displayName || "User";
-            
             loadGoals(); 
+            setInterval(loadGoals, 60000);
         } else {
             document.getElementById("authSection").style.display = "block";
             document.getElementById("mainContent").style.display = "none";
         }
     });
 
-
     document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
     document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
-
 
     document.getElementById("updateNameBtn").onclick = () => {
         const newName = document.getElementById("customNameInput").value.trim();
@@ -38,24 +30,43 @@ window.onload = () => {
         alert("asm chbab bsa7 ta3i khir hehehee! ✅");
     };
 
-
     document.getElementById("submitGoalBtn").onclick = async () => {
         const input = document.getElementById("goalInput");
         const user = auth.currentUser;
         if (!input.value.trim()) return alert("Aktab goal l3ziz!");
         
-        const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
+        const now = new Date();
+        const last5AM = new Date();
+        last5AM.setHours(5, 0, 0, 0);
+        if (now < last5AM) last5AM.setDate(last5AM.getDate() - 1);
+
+        const qCheck = methods.query(
+            methods.collection(db, "goals"),
+            methods.where("userId", "==", user.uid),
+            methods.where("createdAt", ">=", methods.Timestamp.fromDate(last5AM))
+        );
 
         try {
+            const alreadyExists = await new Promise((resolve) => {
+                const unsub = methods.onSnapshot(qCheck, (snap) => {
+                    unsub();
+                    resolve(!snap.empty);
+                });
+            });
+
+            if (alreadyExists) return alert("🚫 One big goal per day only");
+
+            const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
+            
+        
             await methods.addDoc(methods.collection(db, "goals"), {
                 text: input.value,
                 userId: user.uid,
                 userName: displayName,
                 userPhoto: user.photoURL || "",
-                status: "pending",
-                votes: 0,
                 voters: [], 
                 comments: [], 
+                commenterIds: [], 
                 createdAt: methods.serverTimestamp()
             });
             input.value = "";
@@ -90,38 +101,45 @@ window.onload = () => {
             snapshot.forEach(doc => {
                 const g = doc.data();
                 const goalId = doc.id;
-                allGoals.push({ id: goalId, ...g });
+                
+             
+                const voteCount = g.voters ? g.voters.length : 0;
+                allGoals.push({ id: goalId, ...g, votes: voteCount });
+
                 const isOwner = user?.uid === g.userId;
+                const isFounderGoal = g.userId === ADMIN_UID; 
                 const hasVoted = g.voters?.includes(user?.uid);
                 const comments = g.comments || [];
-                const hasCommented = comments.some(c => c.userId === user?.uid);
+                const hasCommented = g.commenterIds?.includes(user?.uid);
 
                 const div = document.createElement("div");
                 div.className = "goal-card";
-                
 
                 let borderCol = "#f59e0b"; 
                 if (g.status === "completed") borderCol = "#10b981";
                 if (g.status === "failed") borderCol = "#ef4444";
                 
-                div.style = `border-left: 8px solid ${borderCol}; position: relative; padding: 0; overflow: hidden;`;
+               
+                const founderGlow = isFounderGoal ? `box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); border: 2px solid gold;` : "";
+                div.style = `border-left: 8px solid ${borderCol}; position: relative; padding: 0; overflow: hidden; ${founderGlow}`;
             
                 div.innerHTML = `
                     <div style="padding: 15px;">
                         ${isAdmin ? `<button onclick="deleteGoal('${goalId}')" style="position:absolute; left:10px; top:10px; width:auto; background:none; color:red; font-size:1.2rem; margin:0; border:none; cursor:pointer;">🗑️</button>` : ''}
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <img src="${g.userPhoto || 'https://ui-avatars.com/api/?name=' + g.userName}" style="width: 30px; height: 30px; border-radius: 50%; margin-left: 10px;">
-                            <b>${g.userName || "User"}</b>
+                        <div style="display: flex; align-items: center; margin-bottom: 10px; gap: 8px;">
+                            <img src="${g.userPhoto || 'https://ui-avatars.com/api/?name=' + g.userName}" style="width: 30px; height: 30px; border-radius: 50%;">
+                            <b style="color:black;">${g.userName || "User"}</b>
+                            ${isFounderGoal ? `<span style="background: gold; color: black; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold;">FOUNDER 🎖️</span>` : ''}
                         </div>
-                        <p style="font-size: 1.1rem; margin: 10px 0; ${g.status === 'failed' ? 'text-decoration: line-through; color: gray;' : ''}">${g.text}</p>
+                        <p style="font-size: 1.1rem; margin: 10px 0; color: black; ${g.status === 'failed' ? 'text-decoration: line-through; color: gray;' : ''}">${g.text}</p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eff3f4; padding-top: 10px;">
                             <div style="display: flex; gap: 10px;">
-                                <span style="font-weight: bold; color: #536471; display:flex; align-items:center;">${g.votes || 0} 🔥</span>
+                                <span style="font-weight: bold; color: #536471; display:flex; align-items:center;">${voteCount} 🔥</span>
                                 <button class="toggle-comments-btn" onclick="toggleComments('${goalId}')">💬 ${comments.length}</button>
                             </div>
                             <div>
-                                ${isOwner && g.status === 'pending' && currentTime >= doneTime ? `
+                                ${isOwner && (!g.status || g.status === 'pending') && currentTime >= doneTime ? `
                                     <button onclick="updateStatus('${goalId}', 'completed')" style="background:#10b981; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">✅ done</button>
                                     <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">❌ failed</button>
                                 ` : ''}
@@ -137,15 +155,18 @@ window.onload = () => {
                     <div id="commentsSection-${goalId}" class="comments-container" style="display:none;">
                         <div class="comments-list">
                             ${comments.map(c => `
-                                <div class="comment-item">
+                                <div class="comment-item" style="${c.userId === ADMIN_UID ? 'border-right: 3px solid gold;' : ''}">
                                     <img src="${c.userPhoto || 'https://ui-avatars.com/api/?name=' + c.userName}" class="comment-avatar">
                                     <div class="comment-content">
-                                        <span class="comment-author">${c.userName || "User"}</span>
+                                        <span class="comment-author">
+                                            ${c.userName || "User"} 
+                                            ${c.userId === ADMIN_UID ? '<small style="color:gold;">🎖️</small>' : ''}
+                                        </span>
                                         <div class="comment-text">${c.text}</div>
                                     </div>
                                 </div>
                             `).join('')}
-                            ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">No motivation yet.. be the first! 🚀</p>' : ''}
+                            ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">No motivation yet.. be the first!</p>' : ''}
                         </div>
                         ${!hasCommented ? `
                             <div class="comment-input-area">
@@ -164,7 +185,6 @@ window.onload = () => {
         });
     }
 
-
     window.toggleComments = (goalId) => {
         const el = document.getElementById(`commentsSection-${goalId}`);
         el.style.display = (el.style.display === "block") ? "none" : "block";
@@ -180,6 +200,7 @@ window.onload = () => {
 
         const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
         try {
+          
             await methods.updateDoc(methods.doc(db, "goals", goalId), {
                 comments: methods.arrayUnion({
                     userId: user.uid,
@@ -187,12 +208,13 @@ window.onload = () => {
                     userPhoto: user.photoURL || "",
                     text: text,
                     at: new Date().toISOString()
-                })
+                }),
+                commenterIds: methods.arrayUnion(user.uid),
+                lastCommentText: text
             });
             input.value = ""; 
-        } catch (e) { console.error("Comment error:", e); }
+        } catch (e) { alert("Only one motivation per goal!"); }
     };
-
 
     function handleWinnerLogic(goals, isAdmin) {
         const winnerSection = document.getElementById("winnerSection");
@@ -230,12 +252,10 @@ window.onload = () => {
             </div>`;
     }
 
-
     window.updateStatus = async (id, status) => { 
         const now = new Date();
         const currentTime = now.getHours() * 60 + now.getMinutes();
         if (currentTime < (22 * 60 + 20)) return alert("⏰ Too early! Wait until 22:20");
-        
         await methods.updateDoc(methods.doc(db, "goals", id), { status }); 
     };
     
@@ -252,13 +272,13 @@ window.onload = () => {
         if (!user) return alert("Login first!");
         const goalRef = methods.doc(db, "goals", id);
         const g = (await methods.getDoc(goalRef)).data();
-        
         if (g.userId === user.uid) return alert("You can't vote for yourself! 😗");
 
+ 
         if (g.voters?.includes(user.uid)) {
-            await methods.updateDoc(goalRef, { voters: methods.arrayRemove(user.uid), votes: methods.increment(-1) });
+            await methods.updateDoc(goalRef, { voters: methods.arrayRemove(user.uid) });
         } else {
-            await methods.updateDoc(goalRef, { voters: methods.arrayUnion(user.uid), votes: methods.increment(1) });
+            await methods.updateDoc(goalRef, { voters: methods.arrayUnion(user.uid) });
         }
     };
 };
