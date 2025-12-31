@@ -70,6 +70,7 @@ window.onload = () => {
                 createdAt: methods.serverTimestamp()
             });
             input.value = "";
+            alert("Dok li yswa wli mayswach y9dar ychof ur goal hhh rani ngsar 😗");
         } catch (e) { console.error("Error adding goal:", e); }
     };
 
@@ -88,6 +89,9 @@ window.onload = () => {
         methods.onSnapshot(q, (snapshot) => {
             const list = document.getElementById("goalsList");
             list.innerHTML = "";
+            if (snapshot.empty) {
+                list.innerHTML = "<p style='text-align:center; color:#94a3b8;'>...raho bda nhar jdid wm3ah ahdaf jdida</p>";
+            }
             const user = auth.currentUser;
             const isAdmin = user?.uid === ADMIN_UID;
             
@@ -141,7 +145,7 @@ window.onload = () => {
                             <div>
                                 ${isOwner && (!g.status || g.status === 'pending') && currentTime >= doneTime ? `
                                     <button onclick="updateStatus('${goalId}', 'completed')" style="background:#10b981; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">✅ done</button>
-                                    <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">❌ failed</button>
+                                    <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">❌ failed huh</button>
                                 ` : ''}
                                 ${!isOwner && g.status === 'completed' && currentTime >= voteStart && currentTime < voteEnd ? `
                                     <button onclick="voteGoal('${goalId}')" style="background:${hasVoted ? '#ef4444' : '#1d9bf0'}; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">
