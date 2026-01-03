@@ -33,7 +33,7 @@
       </div>
     </header>
 
-    <h1>🎯 today's goal 🎯</h1>
+    <h1>🎯 today's goal </h1>
     
     <div class="card goal-input-card">
       <div class="card-header">
@@ -44,7 +44,7 @@
       <button id="submitGoalBtn"> publier l'objectif</button>
     </div>
 
-    <h2>Goals list</h2>
+    <h2> Goals list</h2>
     <div id="goalsList"></div>
   </div>
 
@@ -55,7 +55,7 @@
     serverTimestamp, Timestamp, doc, updateDoc, increment, 
     getDoc, arrayUnion, arrayRemove, orderBy, deleteDoc 
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDoCYX3bfYSS5AOHNDn0NMfyA5UPZVrfIA",
@@ -75,11 +75,11 @@
   window.fb = {
     db, auth, provider,
     methods: { 
-    addDoc, collection, query, where, onSnapshot, serverTimestamp, 
-    Timestamp, doc, updateDoc, increment, signInWithPopup, signOut, 
-    arrayRemove, getDoc, arrayUnion, orderBy, deleteDoc,
-  }
-};
+      addDoc, collection, query, where, onSnapshot, serverTimestamp, 
+      Timestamp, doc, updateDoc, increment, signInWithPopup, signOut, 
+      arrayRemove, getDoc, arrayUnion, orderBy, deleteDoc, setPersistence, browserLocalPersistence
+    }
+  };
 
 </script>
   <script src="script.js"></script>
