@@ -248,14 +248,67 @@ window.onload = () => {
 
     function displayWinner(winner) {
         const winnerSection = document.getElementById("winnerSection");
+        
+
+        if (winnerSection.getAttribute("celebrated") === "true") {
+            renderPermanentWinner(winner);
+            return;
+        }
+        
+        document.body.classList.add("winner-celebration-mode");
+
+        const end = Date.now() + (10 * 1000); 
+
+    (function frame() {
+     
+        confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#ffd700', '#38f8ae', '#ffffff']
+        });
+    
+        confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#ffd700', '#38f8ae', '#ffffff']
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(frame);
+        }
+    }());
+
         winnerSection.innerHTML = `
-            <div class="duolingo-winner">
-                <div class="shine"></div>
-                <div class="winner-content">
-                    <div class="crown">👑</div>
-                    <img src="${winner.userPhoto || 'https://ui-avatars.com/api/?name=' + winner.userName}" class="winner-avatar">
-                    <h2>${winner.userName}</h2>
-                    <p>${winner.votes} 🔥 AL winner ta3 al YOMMM </p>
+            <div class="epic-winner-announcement">
+                <div style="font-size: 3.5rem;">👑</div>
+                <img src="${winner.userPhoto || 'https://ui-avatars.com/api/?name=' + winner.userName}" style="width:130px; height:130px; border-radius:50%; border:5px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.2); object-fit:cover;">
+                <h1 style="margin:15px 0 5px 0;">${winner.userName}</h1>
+                <p style="font-weight:bold; font-size:1.2rem;">  🔥!Winner ta3 L'YOUM</p>
+            </div>`;
+        
+        winnerSection.setAttribute("celebrated", "true");
+
+   
+        setTimeout(() => {
+            document.body.classList.remove("winner-celebration-mode");
+            renderPermanentWinner(winner);
+        }, 10000);
+    }
+
+    function renderPermanentWinner(winner) {
+        document.getElementById("winnerSection").innerHTML = `
+            <div class="goal-card winner-card-permanent" style="margin: 0 auto 20px auto; text-align:right;">
+                <div style="padding: 15px; display: flex; align-items: center; gap: 15px; flex-direction: row-reverse;">
+                    <img src="${winner.userPhoto || 'https://ui-avatars.com/api/?name=' + winner.userName}" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid gold; object-fit:cover;">
+                    <div style="flex-grow:1;">
+                        <b style="font-size: 1.2rem;">🏆 ${winner.userName}</b>
+                        <p style="margin: 5px 0 0 0; font-size: 0.95rem;">${winner.text}</p>
+                        <span style="font-size:0.8rem; font-weight:bold;">${winner.votes} 🔥 VOTES</span>
+                    </div>
                 </div>
             </div>`;
     }
