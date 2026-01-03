@@ -218,8 +218,6 @@ window.onload = () => {
                     text: text,
                     at: new Date().toISOString()
                 })
-                commenterIds: methods.arrayUnion(user.uid),
-                lastCommentText: text
             });
             input.value = ""; 
         } catch (e) { alert("Only one motivation per goal!"); }
