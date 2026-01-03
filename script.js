@@ -2,7 +2,6 @@ window.onload = () => {
     if (!window.fb) return console.error("Firebase is not loaded!");
     const { methods, db, auth, provider } = window.fb;
 
-
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
 
 
@@ -10,14 +9,9 @@ window.onload = () => {
         if (user) {
             document.getElementById("authSection").style.display = "none";
             document.getElementById("mainContent").style.display = "block";
-            
-
             document.getElementById("userAvatar").src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-            
-
             const savedName = localStorage.getItem(`customName_${user.uid}`);
             document.getElementById("userNameDisplay").innerText = savedName || user.displayName || "User";
-            
             loadGoals(); 
             setInterval(loadGoals, 60000);
         } else {
@@ -27,7 +21,20 @@ window.onload = () => {
     });
 
 
-    document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
+    document.getElementById("loginBtn").onclick = async () => {
+        try {
+            await methods.setPersistence(auth, methods.browserLocalPersistence);
+            await methods.signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Login Error:", error);
+            if (error.code === 'auth/popup-blocked') {
+                alert("Please allow pop-ups in your browser settings.");
+            } else {
+                alert("Error during login: " + error.message);
+            }
+        }
+    };
+
     document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
 
 
@@ -285,4 +292,3 @@ window.onload = () => {
         }
     };
 };
-
