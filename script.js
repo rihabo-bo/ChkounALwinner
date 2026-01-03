@@ -81,6 +81,7 @@ window.onload = () => {
                 createdAt: methods.serverTimestamp()
             });
             input.value = "";
+            alert("Dok li yswa wly mayswach y9dar ychof ur goal hhh rani ngsar 😗");
         } catch (e) { console.error("Error adding goal:", e); }
     };
 
