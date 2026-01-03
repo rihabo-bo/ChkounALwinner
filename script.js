@@ -19,7 +19,23 @@ window.onload = () => {
         }
     });
 
-    document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
+    document.getElementById("loginBtn").onclick = async () => {
+        try {
+
+            await methods.setPersistence(auth, methods.browserLocalPersistence);
+
+            await methods.signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Login Error:", error);
+            if (error.code === 'auth/popup-blocked') {
+                alert("Please allow pop-ups in your browser to access Goals Arena.");
+            } else if (error.code === 'auth/network-request-failed') {
+                alert("Connection problem, please try again.");
+            } else {
+                alert("sra problem ki jit dakhl : " + error.message);
+            }
+        }
+    };
     document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
 
     document.getElementById("updateNameBtn").onclick = () => {
@@ -54,7 +70,7 @@ window.onload = () => {
                 });
             });
 
-            if (alreadyExists) return alert("One big goal per day only 🤓☝🏻");
+            if (alreadyExists) return alert("🚫 One big goal per day only");
 
             const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
             
@@ -70,7 +86,7 @@ window.onload = () => {
                 createdAt: methods.serverTimestamp()
             });
             input.value = "";
-            alert("Dok li yswa wli mayswach y9dar ychof ur goal hhh rani ngsar 😗");
+            alert("Dok li yswa wly mayswach y9dar ychof ur goal hhh rani ngsar 😗");
         } catch (e) { console.error("Error adding goal:", e); }
     };
 
@@ -98,7 +114,7 @@ window.onload = () => {
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const doneTime = 22 * 60 + 20;   
             const voteStart = 22 * 60 + 30;  
-            const voteEnd = 23 * 60;         
+            const voteEnd = 23 * 60 ;         
 
             let allGoals = [];
 
@@ -119,7 +135,7 @@ window.onload = () => {
                 const div = document.createElement("div");
                 div.className = "goal-card";
 
-                let borderCol = "#f59e0b"; 
+                let borderCol = "#f59e0b";
                 if (g.status === "completed") borderCol = "#10b981";
                 if (g.status === "failed") borderCol = "#ef4444";
                 
@@ -170,14 +186,14 @@ window.onload = () => {
                                     </div>
                                 </div>
                             `).join('')}
-                            ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">!No motivation yet.. be the first!</p>' : ''}
+                            ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">No motivation yet.. be the first!</p>' : ''}
                         </div>
                         ${!hasCommented ? `
                             <div class="comment-input-area">
                                 <input type="text" id="commInput-${goalId}" placeholder="Write motivation..">
                                 <button class="send-comment-btn" onclick="addComment('${goalId}')">Reply</button>
                             </div>
-                        ` : '<p class="comment-limit-msg">!You shared your motivation sahit</p>'}
+                        ` : '<p class="comment-limit-msg">You shared your motivation sahit!</p>'}
                     </div>`;
                 
                 list.appendChild(div);
@@ -312,7 +328,7 @@ window.onload = () => {
     window.updateStatus = async (id, status) => { 
         const now = new Date();
         const currentTime = now.getHours() * 60 + now.getMinutes();
-        if (currentTime < (22 * 60 + 20)) return alert("Too early! Wait until 22:20");
+        if (currentTime < (22 * 60 + 20)) return alert("⏰ Too early! Wait until 22:20");
         await methods.updateDoc(methods.doc(db, "goals", id), { status }); 
     };
     
