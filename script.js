@@ -206,7 +206,7 @@ window.onload = () => {
         const input = document.getElementById(`commInput-${goalId}`);
         const text = input.value.trim();
         if (!text) return;
-        if (text.length > 150) return alert("Too long!");
+        if (text.length > 200) return alert("Too long!");
 
         const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
         try {
@@ -218,9 +218,11 @@ window.onload = () => {
                     text: text,
                     at: new Date().toISOString()
                 })
+                commenterIds: methods.arrayUnion(user.uid),
+                lastCommentText: text
             });
             input.value = ""; 
-        } catch (e) { console.error("Comment error:", e); }
+        } catch (e) { alert("Only one motivation per goal!"); }
     };
 
 
