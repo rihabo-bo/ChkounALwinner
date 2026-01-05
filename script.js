@@ -93,6 +93,11 @@ window.onload = () => {
     };
 
     function loadGoals() {
+        const user = auth.currentUser;
+        if (!user) {
+            console.log("Waiting for user login...");
+            return;
+        }
         const now = new Date();
         const last5AM = new Date();
         last5AM.setHours(5, 0, 0, 0);
