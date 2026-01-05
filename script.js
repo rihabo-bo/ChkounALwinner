@@ -68,11 +68,12 @@ window.onload = () => {
             methods.where("createdAt", ">=", methods.Timestamp.fromDate(last5AM))
         );
 
-        try {
-           const snap = await methods.getDocs(qCheck);
-           if (!snap.empty) {
-                return alert("🚫 One big goal per day only");
-           }
+          const snap = await methods.getDocs(qCheck); 
+        
+        if (!snap.empty) {
+            alert("🚫 One big goal per day only! Raki derti goal lyoum.");
+            return; 
+        }
 
 
             const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
