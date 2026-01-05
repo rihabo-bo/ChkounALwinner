@@ -3,8 +3,8 @@ window.onload = () => {
     const { methods, db, auth, provider } = window.fb;
 
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
-
     let unsubscribeGoals = null;
+
 
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -18,6 +18,10 @@ window.onload = () => {
         } else {
             document.getElementById("authSection").style.display = "block";
             document.getElementById("mainContent").style.display = "none";
+            if (unsubscribeGoals) {
+                unsubscribeGoals();
+                unsubscribeGoals = null;
+            }
         }
     });
 
@@ -65,16 +69,11 @@ window.onload = () => {
         );
 
         try {
-            const alreadyExists = await new Promise((resolve) => {
-                const unsub = methods.onSnapshot(qCheck, (snap) => {
-                    unsub();
-                    resolve(!snap.empty);
-                });
-            });
-
-            if (alreadyExists) {
+           const snap = await methods.getDocs(qCheck);
+           if (!snap.empty) {
                 return alert("🚫 One big goal per day only");
-            }
+           }
+
 
             const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
             await methods.addDoc(methods.collection(db, "goals"), {
@@ -94,11 +93,7 @@ window.onload = () => {
     };
 
     function loadGoals() {
-        const user = auth.currentUser;
-        if (!user) {
-            console.log("Waiting for user login...");
-            return;
-        }
+        if (unsubscribeGoals) unsubscribeGoals();
         const now = new Date();
         const last5AM = new Date();
         last5AM.setHours(5, 0, 0, 0);
@@ -110,7 +105,8 @@ window.onload = () => {
             methods.orderBy("createdAt", "desc")
         );
 
-        methods.onSnapshot(q, (snapshot) => {
+        unsubscribeGoals = methods.onSnapshot(q, (snapshot) => {
+
             const list = document.getElementById("goalsList");
             list.innerHTML = "";
             const user = auth.currentUser;
