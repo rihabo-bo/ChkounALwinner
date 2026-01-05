@@ -4,6 +4,7 @@ window.onload = () => {
 
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
 
+    let unsubscribeGoals = null;
 
     auth.onAuthStateChanged(user => {
         if (user) {
