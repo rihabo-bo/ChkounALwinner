@@ -2,44 +2,32 @@ window.onload = () => {
     if (!window.fb) return console.error("Firebase is not loaded!");
     const { methods, db, auth, provider } = window.fb;
 
+
     const ADMIN_UID = "wdVDUFEE3dS97K853IXimNEtHw82";
-    let unsubscribeGoals = null;
 
 
     auth.onAuthStateChanged(user => {
         if (user) {
             document.getElementById("authSection").style.display = "none";
             document.getElementById("mainContent").style.display = "block";
+            
+
             document.getElementById("userAvatar").src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
+            
+
             const savedName = localStorage.getItem(`customName_${user.uid}`);
             document.getElementById("userNameDisplay").innerText = savedName || user.displayName || "User";
-            loadGoals(); 
             
+            loadGoals(); 
+            setInterval(loadGoals, 60000);
         } else {
             document.getElementById("authSection").style.display = "block";
             document.getElementById("mainContent").style.display = "none";
-            if (unsubscribeGoals) {
-                unsubscribeGoals();
-                unsubscribeGoals = null;
-            }
         }
     });
 
 
-    document.getElementById("loginBtn").onclick = async () => {
-        try {
-            await methods.setPersistence(auth, methods.browserLocalPersistence);
-            await methods.signInWithPopup(auth, provider);
-        } catch (error) {
-            console.error("Login Error:", error);
-            if (error.code === 'auth/popup-blocked') {
-                alert("Please allow pop-ups in your browser settings.");
-            } else {
-                alert("Error during login: " + error.message);
-            }
-        }
-    };
-
+    document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
     document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
 
 
@@ -68,13 +56,17 @@ window.onload = () => {
             methods.where("createdAt", ">=", methods.Timestamp.fromDate(last5AM))
         );
 
-          const snap = await methods.getDocs(qCheck); 
-        
-        if (!snap.empty) {
-            alert("🚫 One big goal per day only! Raki derti goal lyoum.");
-            return; 
-        }
+        try {
+            const alreadyExists = await new Promise((resolve) => {
+                const unsub = methods.onSnapshot(qCheck, (snap) => {
+                    unsub();
+                    resolve(!snap.empty);
+                });
+            });
 
+            if (alreadyExists) {
+                return alert("🚫 One big goal per day only");
+            }
 
             const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
             await methods.addDoc(methods.collection(db, "goals"), {
@@ -94,7 +86,6 @@ window.onload = () => {
     };
 
     function loadGoals() {
-        if (unsubscribeGoals) unsubscribeGoals();
         const now = new Date();
         const last5AM = new Date();
         last5AM.setHours(5, 0, 0, 0);
@@ -106,8 +97,7 @@ window.onload = () => {
             methods.orderBy("createdAt", "desc")
         );
 
-        unsubscribeGoals = methods.onSnapshot(q, (snapshot) => {
-
+        methods.onSnapshot(q, (snapshot) => {
             const list = document.getElementById("goalsList");
             list.innerHTML = "";
             const user = auth.currentUser;
@@ -227,7 +217,7 @@ window.onload = () => {
     };
 
 
-    function handleWinnerLogic(goals, isAdmin) {
+        function handleWinnerLogic(goals, isAdmin) {
         const winnerSection = document.getElementById("winnerSection");
         const completedGoals = goals.filter(g => g.status === "completed");
         if (completedGoals.length === 0) return;
@@ -348,3 +338,4 @@ window.onload = () => {
         }
     };
 };
+
