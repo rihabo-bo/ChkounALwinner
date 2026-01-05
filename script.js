@@ -14,7 +14,7 @@ window.onload = () => {
             const savedName = localStorage.getItem(`customName_${user.uid}`);
             document.getElementById("userNameDisplay").innerText = savedName || user.displayName || "User";
             loadGoals(); 
-            setInterval(loadGoals, 60000);
+            
         } else {
             document.getElementById("authSection").style.display = "block";
             document.getElementById("mainContent").style.display = "none";
