@@ -1,12 +1,12 @@
 
 :root {
-  --primary: #38f8ae;
-  --bg: #1c7271;
-  --card-bg: #10585a;
+  --primary: #a865f9;
+  --bg: #21114f;
+  --card-bg: #190832;
   --accent: #f59e0b;
   --success: #10b981;
   --error: #ef4444;
-  --glass: rgba(16, 88, 90, 0.8);
+  --glass: rgba(212, 125, 255, 0.8);
 }
 
 body {
@@ -23,9 +23,9 @@ body {
 
 
 .profile-card {
-  background: linear-gradient(135deg, rgba(16, 88, 90, 0.9), rgba(28, 114, 113, 0.8));
+  background: linear-gradient(135deg, rgba(212, 125, 255, 0.8), rgba(65, 3, 96, 0.8));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(56, 248, 174, 0.2);
+  border: 1px solid rgba(229, 56, 248, 0.2);
   border-radius: 20px;
   padding: 15px 20px;
   display: flex;
@@ -93,7 +93,7 @@ outline: none;
 }
 
 .profile-actions { display: flex; flex-direction: row; gap: 10px; }
-.save-btn { background: var(--primary) !important; color: #0f172a !important; padding: 8px 15px !important; font-size: 0.75rem !important; margin: 0px !important; border-radius: 6px !important; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 248, 174, 0.3) !important; border: none !important; transition: all 0.3s; }
+.save-btn { background: var(--primary) !important; color: #0f172a !important; padding: 8px 15px !important; font-size: 0.75rem !important; margin: 0px !important; border-radius: 6px !important; cursor: pointer; box-shadow: 0 4px 15px rgba(191, 56, 248, 0.3) !important; border: none !important; transition: all 0.3s; }
 .exit-btn { background: rgba(239, 68, 68, 0.2) !important; color: var(--error) !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; padding: 8px 15px !important; font-size: 0.75rem !important; margin: 0 !important; border-radius: 6px !important; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 37, 70, 0.3);}
 
 @media (max-width: 480px) {
@@ -116,9 +116,9 @@ outline: none;
 
 
 .goal-input-card {
-  background: linear-gradient(135deg, rgba(16, 88, 90, 0.8), rgba(28, 114, 113, 0.7));
+  background: linear-gradient(135deg, rgba(58, 16, 90, 0.8), rgba(144, 67, 211, 0.7));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(56, 248, 174, 0.2);
+  border: 1px solid rgba(155, 56, 248, 0.2);
   border-radius: 20px;
   padding: 25px;
   width: 100%;
@@ -145,9 +145,9 @@ outline: none;
 textarea {
   width: 100%;
   height: 100px;
-  background: rgba(15, 42, 42, 0.6);
+  background: rgba(33, 15, 42, 0.6);
   color: white;
-  border: 1px solid rgba(56, 248, 174, 0.3);
+  border: 1px solid rgba(142, 56, 248, 0.3);
   border-radius: 12px;
   padding: 15px;
   box-sizing: border-box;
@@ -160,8 +160,8 @@ textarea {
 
 textarea:focus {
   border-color: var(--primary);
-  background: rgba(15, 42, 42, 0.8);
-  box-shadow: 0 0 15px rgba(56, 248, 174, 0.2);
+  background: rgba(24, 15, 42, 0.8);
+  box-shadow: 0 0 15px rgba(162, 56, 248, 0.2);
 }
 
 #submitGoalBtn {
@@ -220,7 +220,7 @@ button {
 
 button:active { transform: scale(0.98); }
 
-#logoutBtn { background: transparent; color: #21ffcf; width: auto; font-size: 0.8rem; }
+#logoutBtn { background: transparent; color: #9721ff; width: auto; font-size: 0.8rem; }
 
 .vote-btn {
   background: var(--accent);
