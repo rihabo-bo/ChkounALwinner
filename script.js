@@ -13,7 +13,29 @@ window.onload = () => {
             
 
             document.getElementById("userAvatar").src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
+            document.getElementById("pfpInput").onchange = function(e) {
+                 const file = e.target.files[0];
+                 if (!file) return;
+
+                 const user = auth.currentUser;
+                 if (!user) return alert("Sajli dkhoul 9bal ma tbadli l'pfp!");
+
+                 if (file.size > 500 * 1024) return alert("tswira kbira bzaf dir whda 500KB");
+
+                 const reader = new FileReader();
+                 reader.onload = function(event) {
+                     const base64Image = event.target.result;
+                     localStorage.setItem(`customPfp_${user.uid}`, base64Image);
+                     document.getElementById("userAvatar").src = base64Image;
+                      alert("Pfp updated! ✨");
+              };
+             reader.readAsDataURL(file);
+            };
             
+            const savedPfp = localStorage.getItem(`customPfp_${user.uid}`);
+  
+            document.getElementById("userAvatar").src = savedPfp || user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
+    
 
             const savedName = localStorage.getItem(`customName_${user.uid}`);
             document.getElementById("userNameDisplay").innerText = savedName || user.displayName || "User";
@@ -73,7 +95,7 @@ window.onload = () => {
                 text: input.value,
                 userId: user.uid,
                 userName: displayName,
-                userPhoto: user.photoURL || "",
+                userPhoto: customPfp || user.photoURL || "",
                 status: "pending",
                 votes: 0,
                 voters: [], 
