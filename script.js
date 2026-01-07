@@ -20,7 +20,7 @@ window.onload = () => {
                  const user = auth.currentUser;
                  if (!user) return alert("Sajli dkhoul 9bal ma tbadli l'pfp!");
 
-                 if (file.size > 500 * 1024) return alert("tswira kbira bzaf dir whda 500KB");
+                 if (file.size > 500 * 1024) return alert("Bzaf kbira dir whda 500kb");
 
                  const reader = new FileReader();
                  reader.onload = function(event) {
@@ -89,7 +89,8 @@ window.onload = () => {
             if (alreadyExists) {
                 return alert("🚫 One big goal per day only");
             }
-
+            
+            const customPfp = localStorage.getItem(`customPfp_${user.uid}`);
             const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
             await methods.addDoc(methods.collection(db, "goals"), {
                 text: input.value,
@@ -225,11 +226,15 @@ window.onload = () => {
 
         const displayName = localStorage.getItem(`customName_${user.uid}`) || user.displayName;
         try {
+            const customPfp = localStorage.getItem(`customPfp_${user.uid}`);
+            const customName = localStorage.getItem(`customName_${user.uid}`);
+        
+            const goalRef = methods.doc(db, "goals", goalId);
             await methods.updateDoc(methods.doc(db, "goals", goalId), {
                 comments: methods.arrayUnion({
                     userId: user.uid,
-                    userName: displayName,
-                    userPhoto: user.photoURL || "",
+                    userName: customName || displayName,
+                    userPhoto: customPfp || user.photoURL || "",
                     text: text,
                     at: new Date().toISOString()
                 })
