@@ -34,15 +34,21 @@
         <div class="user-details">
           <input type="text" id="customNameInput" placeholder="..BDAL ASMEK" class="name-input">
           <p id="userNameDisplay" style="font-size: 0.8rem; opacity: 0.7; margin: 0; color: white;"></p>
+           <input type="file" id="pfpInput" accept="image/*" style="display: none;">
+           <button onclick="document.getElementById('pfpInput').click()" class="pfp-mini-btn">📸</button>
+      
         </div>
       </div>
-      <div class="profile-actions">
+
+   
+    
+     <div class="profile-actions">
         <button id="updateNameBtn" class="save-btn">Sauvegarder</button>
         <button id="logoutBtn" class="exit-btn">sortie</button>
       </div>
     </header>
 
-    <h1>🎯 today's goal </h1>
+    <h1>today's goal 🎯</h1>
     
     <div class="card goal-input-card">
       <div class="card-header">
@@ -53,7 +59,7 @@
       <button id="submitGoalBtn"> publier l'objectif</button>
     </div>
 
-    <h2> Goals list</h2>
+    <h2>🌍 Goals list</h2>
     <div id="goalsList"></div>
   </div>
 
