@@ -1,0 +1,25 @@
+{
+  "short_name": "GoalArena",
+  "name": "ChkounALwinner",
+  "description": "Aktab ur goal dyalk m3a ChkounALwinner w syy kmlo 9bal lokhrin!",
+  "icons": [
+    {
+      "src": "0C4232F2-5E77-4294-93D6-DC3361937461.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "0C4232F2-5E77-4294-93D6-DC3361937461.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "theme_color": "#21114f",
+  "background_color": "#21114f",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ar"
+}
