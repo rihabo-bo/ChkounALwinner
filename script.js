@@ -166,7 +166,11 @@ window.onload = () => {
                                 <span style="font-weight: bold; color: #536471; display:flex; align-items:center;">${g.votes || 0} 🔥</span>
                                 <button class="toggle-comments-btn" onclick="toggleComments('${goalId}')">💬 ${comments.length}</button>
                             </div>
+
                             <div>
+                                ${isOwner && g.status === 'pending' ? `
+                                    <button onclick="editGoal('${goalId}', '${g.text.replace(/'/g, "\\'")}')" style="background:#1d9bf0; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer; margin-right:5px;">✏️ edit</button>
+                                ` : ''}
                                 ${isOwner && g.status === 'pending' && currentTime >= doneTime ? `
                                     <button onclick="updateStatus('${goalId}', 'completed')" style="background:#10b981; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">✅ done</button>
                                     <button onclick="updateStatus('${goalId}', 'failed')" style="background:#ef4444; color:white; width:auto; padding:5px 12px; border-radius: 20px; cursor:pointer;">❌ failed</button>
@@ -362,6 +366,28 @@ window.onload = () => {
     window.setManualWinner = async (id) => {
         await methods.updateDoc(methods.doc(db, "goals", id), { isWinner: true });
     };
+
+    window.editGoal = async (id, currentText) => {
+        const newText = prompt("Edit your goal:", currentText);
+    
+   
+        if (newText === null || newText.trim() === "") return;
+    
+        if (newText.length > 250) return alert("Too long! Keep it short.");
+
+        try {
+        await methods.updateDoc(methods.doc(db, "goals", id), {
+            text: newText,
+            updatedAt: methods.serverTimestamp()
+        });
+        alert("Goal updated!");
+        } catch (e) {
+        console.error("Error updating goal:", e);
+        alert("Failed to update goal.");
+        }
+    };
+
+
 
     window.voteGoal = async (id) => {
         const user = auth.currentUser;
