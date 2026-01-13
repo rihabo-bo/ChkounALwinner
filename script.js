@@ -368,25 +368,30 @@ window.onload = () => {
     };
 
     window.editGoal = async (id, currentText) => {
-        const newText = prompt("Edit your goal:", currentText);
-    
-   
-        if (newText === null || newText.trim() === "") return;
-    
-        if (newText.length > 250) return alert("Too long! Keep it short.");
+    const user = auth.currentUser;
+    if (!user) return;
 
-        try {
-        await methods.updateDoc(methods.doc(db, "goals", id), {
-            text: newText,
-            updatedAt: methods.serverTimestamp()
+    const newText = prompt("Edit your goal:", currentText);
+    
+    if (newText === null || newText.trim() === "" || newText === currentText) return;
+    if (newText.length > 200) return alert("Too long!");
+
+    try {
+        const goalRef = methods.doc(db, "goals", id);
+        
+      
+        await methods.updateDoc(goalRef, {
+            text: newText.trim(),
+            editedAt: methods.serverTimestamp()
         });
-        alert("Goal updated! ✏️");
-        } catch (e) {
-        console.error("Error updating goal:", e);
-        alert("Failed to update goal.");
+        
+        alert("Goal updated!✨");
+         } catch (e) {
+        console.error("Awillyyy kayn Error updating goal", e);
+       
+        alert("Permission Denied: You can only edit 'pending' goals no للغش");
         }
-    };
-
+   };
 
 
     window.voteGoal = async (id) => {
