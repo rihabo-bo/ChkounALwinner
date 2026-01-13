@@ -182,23 +182,24 @@ window.onload = () => {
 
                     <div id="commentsSection-${goalId}" class="comments-container" style="display:none;">
                         <div class="comments-list">
-                            ${comments.map(c => `
-                                <div class="comment-item">
-                                    <img src="${c.userPhoto || 'https://ui-avatars.com/api/?name=' + c.userName}" class="comment-avatar">
-                                    <div class="comment-content">
-                                        <span class="comment-author">${c.userName || "User"}</span>
-                                        <div class="comment-text">${c.text}</div>
+                            ${comments.map((c, index) => `
+                                <div class="comment-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center;">
+                                        <img src="${c.userPhoto || 'https://ui-avatars.com/api/?name=' + c.userName}" class="comment-avatar">
+                                        <div class="comment-content">
+                                            <span class="comment-author">${c.userName || "User"}</span>
+                                            <div class="comment-text">${c.text}</div>
+                                        </div>
                                     </div>
+                                    ${isAdmin ? `<button onclick="deleteComment('${goalId}', ${index})" style="background:none; border:none; color:red; cursor:pointer; font-size:0.8rem;">🗑️</button>` : ''}
                                 </div>
                             `).join('')}
                             ${comments.length === 0 ? '<p style="text-align:center; color:#536471; font-size:0.8rem; padding:10px;">No motivation yet.. be the first! 🚀</p>' : ''}
                         </div>
-                        ${!hasCommented ? `
-                            <div class="comment-input-area">
-                                <input type="text" id="commInput-${goalId}" placeholder="Write motivation..">
-                                <button class="send-comment-btn" onclick="addComment('${goalId}')">Reply</button>
-                            </div>
-                        ` : '<p class="comment-limit-msg">You shared your motivation sahit!</p>'}
+                        <div class="comment-input-area">
+                            <input type="text" id="commInput-${goalId}" placeholder="Write motivation..">
+                            <button class="send-comment-btn" onclick="addComment('${goalId}')">Reply</button>
+                        </div>
                     </div>`;
                 
                 list.appendChild(div);
@@ -240,9 +241,21 @@ window.onload = () => {
                 })
             });
             input.value = ""; 
-        } catch (e) { alert("Only one motivation per goal!"); }
+        } catch (e) { alert("Awilyyy kayn error"); }
     };
-
+    
+    window.deleteComment = async (goalId, index) => {
+        if (!confirm("raky sure ya zala haba tn7i this comment?")) return;
+        try {
+            const goalRef = methods.doc(db, "goals", goalId);
+            const docSnap = await methods.getDoc(goalRef);
+            if (docSnap.exists()) {
+                const comments = docSnap.data().comments || [];
+                comments.splice(index, 1);
+                await methods.updateDoc(goalRef, { comments: comments });
+            }
+        } catch (e) { console.error("Error deleting comment:", e); }
+    };
 
         function handleWinnerLogic(goals, isAdmin) {
         const winnerSection = document.getElementById("winnerSection");
