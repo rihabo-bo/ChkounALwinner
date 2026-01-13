@@ -380,7 +380,7 @@ window.onload = () => {
             text: newText,
             updatedAt: methods.serverTimestamp()
         });
-        alert("Goal updated!");
+        alert("Goal updated! ✏️");
         } catch (e) {
         console.error("Error updating goal:", e);
         alert("Failed to update goal.");
