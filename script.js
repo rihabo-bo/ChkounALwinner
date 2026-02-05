@@ -49,9 +49,25 @@ window.onload = () => {
     });
 
 
-    document.getElementById("loginBtn").onclick = () => methods.signInWithPopup(auth, provider);
-    document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
+    document.getElementById("loginBtn").onclick = async () => {
+      try {
+        
+        await methods.setPersistence(auth, methods.browserLocalPersistence);
+        await methods.signInWithPopup(auth, provider);
+        
+        console.log("Login Successful! ✨");
+      } catch (error) {
+        console.error("Login Error:", error);
+        if (error.code === 'auth/internal-error' || error.message.includes('initial state')) {
+            alert("problem mn Safari dir sing up again w zid syy");
+        } else {
+            alert("Sra mochkl" + error.message);
+        }
+      }
+    };
 
+
+    document.getElementById("logoutBtn").onclick = () => methods.signOut(auth);
 
     document.getElementById("updateNameBtn").onclick = () => {
         const newName = document.getElementById("customNameInput").value.trim();
@@ -385,11 +401,11 @@ window.onload = () => {
             editedAt: methods.serverTimestamp()
         });
         
-        alert("Goal updated!✨");
+        alert("Goal updated! ✨");
          } catch (e) {
-        console.error("Awillyyy kayn Error updating goal", e);
+        console.error("Error updating goal:", e);
        
-        alert("Permission Denied: You can only edit 'pending' goals no للغش");
+        alert("Permission Denied: You can only edit 'pending' goals.");
         }
    };
 
@@ -408,5 +424,6 @@ window.onload = () => {
             await methods.updateDoc(goalRef, { voters: methods.arrayUnion(user.uid), votes: methods.increment(1) });
         }
     };
+
 };
 
