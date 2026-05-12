@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.rihabo_bo.twa",
+    "sha256_cert_fingerprints": [
+      "E0:D1:9F:1F:FC:A1:28:B1:B1:A8:B6:AC:F4:7B:E8:CA:5E:82:72:5D:CB:9D:32:59:BB:82:3B:F2:D3:19:78:09"
+    ]
+  }
+}]
