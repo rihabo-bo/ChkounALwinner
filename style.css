@@ -1,5 +1,8 @@
 
 :root {
+  color-scheme: light !important;
+  
+  /* الألوان تاعك الأصلية */
   --primary: #a865f9;
   --bg: #21114f;
   --card-bg: #190832;
@@ -8,6 +11,12 @@
   --error: #ef4444;
   --glass: rgba(212, 125, 255, 0.8);
 }
+
+/* 2. حماية إضافية حتى لو كان التيليفون في الوضع الداكن */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
