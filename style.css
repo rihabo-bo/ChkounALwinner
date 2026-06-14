@@ -1,7 +1,7 @@
 
 :root {
-  color-scheme: light !important;
-  
+
+  color-scheme: only light;
 
   --primary: #a865f9;
   --bg: #21114f;
@@ -30,6 +30,32 @@ body {
   overflow-x: hidden;
 }
 
+  @media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark !important;
+  }
+  body {
+    background: #21114f !important;
+    color: white !important;
+  }
+  .profile-card {
+    background: linear-gradient(135deg, rgba(212, 125, 255, 0.8), rgba(65, 3, 96, 0.8)) !important;
+  }
+  .goal-input-card {
+    background: linear-gradient(135deg, rgba(58, 16, 90, 0.8), rgba(144, 67, 211, 0.7)) !important;
+  }
+  .goal-card {
+    background: white !important;
+    color: black !important;
+  }
+  textarea {
+    background: rgba(33, 15, 42, 0.6) !important;
+    color: white !important;
+  }
+  #userNameDisplay, .card-header .label {
+    color: white !important;
+  }
+}
 
 .profile-card {
   background: linear-gradient(135deg, rgba(212, 125, 255, 0.8), rgba(65, 3, 96, 0.8));
